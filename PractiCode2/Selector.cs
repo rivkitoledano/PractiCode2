@@ -1,5 +1,7 @@
-﻿using System;
+﻿using PractiCode2;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,47 +18,108 @@ namespace PractiCode2
         //"b #n .k
         //b#n.k
         //b#n .k
-        public static Selector FromQueryStringRec(string query)
+
+
+
+        public static Selector FromQueryString(string queryString)
         {
-
-        }
-
-        public static Selector FromQueryString(string query)
-        {
-            var selectors = query.Split(' ');
-            if (selectors.Length > 1)
-                FromQueryStringRec(query);
-
+            var selectors = queryString.Split(' ');
+            Selector root = null;
+            var newSelector = new Selector();
             var currentSelector = new Selector();
-            string[] parts = new string[10];
-            if (query.IndexOf('#') > 0)
-                parts = query.Split('#'); 
-            else if (query.IndexOf('.') > 0)
-                parts = query.Split('.'); //"#n .k.l
-            var tagName = parts[0];
-            if (HtmlHelper.Helper.HtmlTags.Contains(tagName))
+            var parts = queryString.Split(' ');
+            var tagName = "";
+            foreach (var queryStr in selectors)
             {
-                currentSelector.TagName = tagName;
+                newSelector = new Selector();
+
+                var query = queryStr;
+
+                if (query.IndexOf('#')>0)
+                    tagName=query.Substring(0, query.IndexOf('#'));
+                else if( query.IndexOf('.') > 0)
+                    tagName = query.Substring(0, query.IndexOf('.'));
+                else tagName = query;
+                if (HtmlHelper.Helper.HtmlTags.Contains(tagName))
+                {
+                    currentSelector.TagName = tagName;
+                    tagName = "";
+                    if (query.IndexOf('#') > 0)
+                        query = query.Substring(query.IndexOf('#'));
+                    else if(query.IndexOf('.') > 0) 
+                        query = query.Substring(query.IndexOf('.'));
+
+                }
+                if (query.IndexOf('#')>=0)
+                {
+                    if (query.IndexOf('.') > 0)
+                    { 
+                        currentSelector.Id = query.Substring(1, query.IndexOf('.')-1);
+                         parts=query.Split('.');
+                        currentSelector.Classes = new List<string>(parts.Skip(1));
+
+                    }
+                    else
+                        currentSelector.Id = query.Substring(1);
+
+                }
+                else
+                {
+
+                    parts = query.Split('.');
+                    currentSelector.Classes = new List<string>(parts.Skip(1));
+                }
+                if (root == null)
+                {
+                    root = currentSelector;
+
+                }
+                if(newSelector!=null)
+                {
+                    currentSelector.Child = newSelector;
+                    newSelector.Parent = currentSelector;
+                }
+
+                currentSelector = newSelector;
             }
-            if (parts[1].StartsWith('#'))
+            if(currentSelector.Parent!=null)
+            currentSelector.Parent.Child = null;
+
+            return root;
+        }
+        public override string ToString()
+        {
+            StringBuilder result = new StringBuilder();
+
+            if (!string.IsNullOrEmpty(TagName))
             {
-                parts = parts[1].Split('.');//#g .h
-                currentSelector.Id = parts[0].Substring(1); 
+                result.Append(TagName);
             }
-            if (parts.Length > 1)
+
+            if (!string.IsNullOrEmpty(Id))
             {
-                currentSelector.Classes = new List<string>(parts.Skip(1));
-
+                result.Append($"id: #{Id}");
             }
 
+            if (Classes != null && Classes.Count > 0)
+            {
+                result.Append($"classes: .{string.Join(".", Classes)}");
+            }
 
+           
 
-            return currentSelector;
+            if (Child != null)
+            {
+                result.Append($" \n child: {Child.ToString()}");
+            }
+
+            return result.ToString();
         }
     }
 
-
-
-
-
 }
+
+
+
+
+
