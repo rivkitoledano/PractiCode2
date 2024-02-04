@@ -9,8 +9,7 @@ static async Task<string> Load(string url)
     var html = await response.Content.ReadAsStringAsync();
     return html;
 }
-
-static HtmlElement BuildHtmlTree(List<string> htmlLines)
+static HtmlElement Serialize(List<string> htmlLines)
 {
     var root = new HtmlElement();
     var currentElement = root;
@@ -81,31 +80,31 @@ static HtmlElement BuildHtmlTree(List<string> htmlLines)
 
     return root;
 }
-
 var html = await Load("https://www.discountbank.co.il/");
 var clean = new Regex("\\s+").Replace(html, " ");
 var lines = new Regex("<(.*?>)").Split(clean).Where(l => l.Length > 0);
-var root = BuildHtmlTree(lines.ToList());
-string query = "li#anchor";// .search-tags__title
-//.cookie-message #close-cookies.close-btn img
-//.header-container #anchor
+var root = Serialize(lines.ToList());
+string query = "ul li span a";
 var selector = Selector.FromQueryString(query);
 Console.WriteLine("selector: ");
 Console.WriteLine(selector);
 var all =root.FindElements(selector);
-//Console.WriteLine(root);
 foreach (var item in all)
 {
-    Console.WriteLine(item);
+    Console.WriteLine(item+ "\n \n");
+}
+foreach (var item in all)
+{
+    Console.WriteLine("\n \n \n ---Ancestors----");
+     var ancestors=item.Ancestors();
+    foreach (var i in ancestors)
+    {
+        Console.WriteLine(i);
+    }
 }
 Console.ReadLine();
-//button class= "close-btn" id = "close-cookies" >
-
-//    div class= "cookie-notice" >
-//section class= "home-page-container" >
-
-//.cookie-message #close-cookies.close-btn img
-//ul li
-//div class="header-container">
+//$$("div#lang-switcher li.language-switcher__list-item")
+//$$(".cookie-message #close-cookies.close-btn img")
+//$$("ul li span a")
 
 

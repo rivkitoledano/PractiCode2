@@ -9,8 +9,6 @@ namespace PractiCode2
 {
     internal class HtmlHelper
     {
-        
-       
         private readonly static HtmlHelper _htmlHelper = new HtmlHelper();
         public static HtmlHelper Helper => _htmlHelper;
         public string[] SelfClosingTags { get; set; }

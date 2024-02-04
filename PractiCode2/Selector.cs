@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PractiCode2
 {
-    internal class Selector
+    public class Selector
     {
         public string TagName { get; set; }
         public string Id { get; set; }
@@ -84,35 +84,27 @@ namespace PractiCode2
             }
             if(currentSelector.Parent!=null)
             currentSelector.Parent.Child = null;
-
             return root;
         }
         public override string ToString()
         {
             StringBuilder result = new StringBuilder();
-
             if (!string.IsNullOrEmpty(TagName))
             {
                 result.Append(TagName);
             }
-
             if (!string.IsNullOrEmpty(Id))
             {
-                result.Append($"id: #{Id}");
+                result.Append($" id: #{Id} ");
             }
-
             if (Classes != null && Classes.Count > 0)
             {
-                result.Append($"classes: .{string.Join(".", Classes)}");
+                result.Append($" classes: .{string.Join(".", Classes)} ");
             }
-
-           
-
             if (Child != null)
             {
-                result.Append($" \n child: {Child.ToString()}");
+                result.Append($" \n child: {Child.ToString()} ");
             }
-
             return result.ToString();
         }
     }
